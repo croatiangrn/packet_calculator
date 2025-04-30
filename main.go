@@ -3,7 +3,10 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/croatiangrn/packet_calculator/src/container"
+	"github.com/croatiangrn/packet_calculator/src/infrastructure/config"
+	"github.com/croatiangrn/packet_calculator/src/infrastructure/database"
 	appHttp "github.com/croatiangrn/packet_calculator/src/infrastructure/http"
 	"log"
 	"net/http"
@@ -17,18 +20,33 @@ func main() {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
-	appContainer := container.NewContainer()
+	cfg, err := config.Load("./.env")
+	if err != nil {
+		log.Fatalf("Error loading config: %v\n", err)
+		return
+	}
+
+	dbDsn := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?charset=utf8mb4&parseTime=True&loc=Local",
+		cfg.DBUser, cfg.DBPassword, cfg.DBHost, cfg.DBPort, cfg.DBName)
+
+	db, err := database.InitDB(dbDsn)
+	if err != nil {
+		log.Fatalf("Error initializing database: %v\n", err)
+		return
+	}
+
+	appContainer := container.NewContainer(db)
 
 	appHttp.SetContainer(appContainer)
 	routerHandler := appHttp.InitRouter()
 
 	srv := &http.Server{
-		Addr:    ":8080",
+		Addr:    cfg.ServerPort,
 		Handler: routerHandler,
 	}
 
 	go func() {
-		log.Println("Server starting on :8080")
+		log.Printf("Server starting on %s", cfg.ServerPort)
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalf("Server error: %v\n", err)
 		}

@@ -16,11 +16,14 @@ func InitRouter() *gin.Engine {
 	router := gin.Default()
 	router.Use(gin.Recovery())
 
+	v1API := router.Group("/v1")
+	{
+		appContainer.PackageController.RegisterRoutes(v1API)
+	}
+
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
-
-	router.POST("/calculate-packs", func(c *gin.Context) {})
 
 	return router
 }
