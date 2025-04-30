@@ -2,26 +2,61 @@ package database
 
 import (
 	"database/sql"
-	_ "github.com/go-sql-driver/mysql" // MySQL driver
+	"errors"
+	"fmt"
 	"time"
+
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/mysql"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
 const (
-	// DefaultMaxConn is the default maximum number of open connections to the database.
-	DefaultMaxConn = 10
-	// DefaultMaxIdleConn is the default maximum number of idle connections in the pool.
-	DefaultMaxIdleConn = 5
-	// DefaultMaxConnLifeTime is the default maximum connection lifetime in seconds.
+	DefaultMaxConn         = 10
+	DefaultMaxIdleConn     = 5
 	DefaultMaxConnLifeTime = 60
 )
 
 func InitDB(DbDsn string) (*sql.DB, error) {
-	db, e := sql.Open("mysql", DbDsn)
-	if e != nil {
-		return nil, e
+	db, err := sql.Open("mysql", DbDsn)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open database: %w", err)
 	}
+
 	db.SetConnMaxLifetime(time.Duration(DefaultMaxConnLifeTime) * time.Second)
 	db.SetMaxOpenConns(DefaultMaxConn)
 	db.SetMaxIdleConns(DefaultMaxIdleConn)
+
+	// Verify connection
+	if err := db.Ping(); err != nil {
+		return nil, fmt.Errorf("failed to ping database: %w", err)
+	}
+
 	return db, nil
+}
+
+func RunMigrations(db *sql.DB, migrationsPath string) error {
+	// Get database driver instance
+	driver, err := mysql.WithInstance(db, &mysql.Config{})
+	if err != nil {
+		return fmt.Errorf("failed to create migration driver: %w", err)
+	}
+
+	// Initialize migrator
+	m, err := migrate.NewWithDatabaseInstance(
+		"file://"+migrationsPath,
+		"mysql",
+		driver,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to initialize migrator: %w", err)
+	}
+
+	// Run migrations
+	if err := m.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
+		return fmt.Errorf("migration failed: %w", err)
+	}
+
+	return nil
 }

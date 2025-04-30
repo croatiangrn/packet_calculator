@@ -20,5 +20,9 @@ WORKDIR /root/
 COPY --from=builder /app/package-calculator .
 COPY --from=builder /app/migrations ./migrations
 
+# Copy configuration files (if any)
+COPY ../.env .
+
+
 EXPOSE 8080
 CMD ["./package-calculator"]

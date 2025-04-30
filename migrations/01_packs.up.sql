@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS packs (
+     id INT AUTO_INCREMENT PRIMARY KEY,
+     item_size INT NOT NULL
+);

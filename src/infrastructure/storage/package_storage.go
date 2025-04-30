@@ -12,14 +12,27 @@ func NewPackageStorage(db *sql.DB) *PackageStorage {
 	}
 }
 
-func (p *PackageStorage) CalculatePacks(order int, packs []int) (map[int]int, error) {
-	packsMap := make(map[int]int)
-	for _, pack := range packs {
-		if order >= pack {
-			count := order / pack
-			packsMap[pack] = count
-			order = order % pack
-		}
+func (p *PackageStorage) GetPacks() ([]int, error) {
+	query := "SELECT item_size FROM packs ORDER BY item_size ASC"
+	rows, err := p.db.Query(query)
+	if err != nil {
+		return nil, err
 	}
-	return packsMap, nil
+
+	defer rows.Close()
+
+	var packs []int
+	for rows.Next() {
+		var packSize int
+		if err := rows.Scan(&packSize); err != nil {
+			return nil, err
+		}
+		packs = append(packs, packSize)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return packs, nil
 }
