@@ -18,7 +18,6 @@ func InitRouter() *gin.Engine {
 	router := gin.Default()
 	router.Use(gin.Recovery())
 
-	// Configure CORS middleware (Gin's official implementation)
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"https://calculator.mikulic.dev"}, // TODO: This should be moved to a config file
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
