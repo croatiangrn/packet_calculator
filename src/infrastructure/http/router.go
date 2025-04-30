@@ -18,7 +18,8 @@ func InitRouter() *gin.Engine {
 
 	v1API := router.Group("/v1")
 	{
-		appContainer.PackageController.RegisterRoutes(v1API)
+		appContainer.CalculatorController.RegisterRoutes(v1API)
+		appContainer.PacksController.RegisterRoutes(v1API)
 	}
 
 	router.GET("/health", func(c *gin.Context) {

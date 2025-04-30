@@ -5,58 +5,30 @@ import (
 	"github.com/croatiangrn/packet_calculator/src/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
-// PackageController handles HTTP requests related to packages
-type PackageController struct {
+// PacksController handles HTTP requests related to packages
+type PacksController struct {
 	service *service.Pack
 }
 
-func NewPackageController(pkgService *service.Pack) *PackageController {
-	return &PackageController{
+func NewPacksController(pkgService *service.Pack) *PacksController {
+	return &PacksController{
 		service: pkgService,
 	}
 }
 
-func (pc *PackageController) RegisterRoutes(router *gin.RouterGroup) {
-	packageAPI := router.Group("/packages")
+func (pc *PacksController) RegisterRoutes(router *gin.RouterGroup) {
+	packageAPI := router.Group("/packs")
 	{
-		packageAPI.POST("/calculate", pc.CalculatePacks)
-
-		// This should be separated to another controller to be RESTful
-		// TODO: Move this to another controller
-		packageAPI.GET("/sizes", pc.GetPackSizes)
-		packageAPI.POST("/sizes", pc.AddPackSize)
-
+		packageAPI.GET("", pc.GetPackSizes)
+		packageAPI.POST("", pc.AddPackSize)
+		packageAPI.DELETE("/:id", pc.DeletePackSize)
 	}
 }
 
-func (pc *PackageController) CalculatePacks(ginCtx *gin.Context) {
-	var req dto.CalculatePacksRequest
-
-	if err := ginCtx.ShouldBindJSON(&req); err != nil {
-		ginCtx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-		return
-	}
-
-	packSizes, err := pc.service.GetPacksSizes()
-	if err != nil {
-		ginCtx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get packs"})
-		return
-	}
-
-	orderRes, err := pc.service.CalculatePacks(1, packSizes)
-	if err != nil {
-		ginCtx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	ginCtx.JSON(http.StatusOK, gin.H{
-		"order": orderRes,
-	})
-}
-
-func (pc *PackageController) GetPackSizes(ginCtx *gin.Context) {
+func (pc *PacksController) GetPackSizes(ginCtx *gin.Context) {
 	sizes, err := pc.service.GetAllPacks()
 	if err != nil {
 		ginCtx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get packs"})
@@ -68,7 +40,7 @@ func (pc *PackageController) GetPackSizes(ginCtx *gin.Context) {
 	})
 }
 
-func (pc *PackageController) AddPackSize(ginCtx *gin.Context) {
+func (pc *PacksController) AddPackSize(ginCtx *gin.Context) {
 	var req dto.AddPackSizeRequest
 
 	if err := ginCtx.ShouldBindJSON(&req); err != nil {
@@ -83,4 +55,19 @@ func (pc *PackageController) AddPackSize(ginCtx *gin.Context) {
 	}
 
 	ginCtx.JSON(http.StatusOK, gin.H{"message": "Pack size added successfully"})
+}
+
+func (pc *PacksController) DeletePackSize(ginCtx *gin.Context) {
+	id, err := strconv.Atoi(ginCtx.Param("id"))
+	if err != nil {
+		ginCtx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid pack ID"})
+		return
+	}
+
+	if err := pc.service.DeletePackSize(id); err != nil {
+		ginCtx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete pack size"})
+		return
+	}
+
+	ginCtx.JSON(http.StatusNoContent, nil)
 }

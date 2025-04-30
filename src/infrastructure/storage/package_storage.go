@@ -73,3 +73,12 @@ func (p *PackageStorage) AddPackSize(size int) error {
 	}
 	return nil
 }
+
+func (p *PackageStorage) DeletePackSize(id int) error {
+	query := "DELETE FROM packs WHERE id = ?"
+	_, err := p.db.Exec(query, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}

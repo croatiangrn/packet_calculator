@@ -7,4 +7,5 @@ type PackageRepository interface {
 	GetPacks() ([]int, error)
 	GetAll() ([]pack.Pack, error)
 	AddPackSize(size int) error
+	DeletePackSize(id int) error
 }

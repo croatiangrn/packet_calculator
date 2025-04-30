@@ -12,16 +12,20 @@ import (
 
 // Container holds all the dependencies for the application
 type Container struct {
-	DB                *sql.DB
-	PackageRepo       repositories.PackageRepository
-	PackageService    *service.Pack
-	PackageController *http.PackageController
+	DB                   *sql.DB
+	PackageRepo          repositories.PackageRepository
+	PackageService       *service.Pack
+	CalculatorService    *service.Calculator
+	PacksController      *http.PacksController
+	CalculatorController *http.CalculatorController
 }
 
 func NewContainer(db *sql.DB) *Container {
 	c := &Container{DB: db}
 	c.PackageRepo = storage.NewPackageStorage(c.DB)
-	c.PackageService = service.NewPackService(c.PackageRepo)
-	c.PackageController = http.NewPackageController(c.PackageService)
+	c.PackageService = service.NewPack(c.PackageRepo)
+	c.CalculatorService = service.NewCalculator(c.PackageRepo)
+	c.PacksController = http.NewPacksController(c.PackageService)
+	c.CalculatorController = http.NewCalculatorController(c.CalculatorService)
 	return c
 }
