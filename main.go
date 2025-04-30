@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"errors"
+	"github.com/croatiangrn/packet_calculator/src/container"
+	appHttp "github.com/croatiangrn/packet_calculator/src/infrastructure/http"
 	"log"
 	"net/http"
 	"os"
@@ -15,9 +17,14 @@ func main() {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
+	appContainer := container.NewContainer()
+
+	appHttp.SetContainer(appContainer)
+	routerHandler := appHttp.InitRouter()
+
 	srv := &http.Server{
 		Addr:    ":8080",
-		Handler: http.DefaultServeMux, // Your router here
+		Handler: routerHandler,
 	}
 
 	go func() {
