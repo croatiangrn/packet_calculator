@@ -18,6 +18,7 @@ const (
 	DefaultMaxConnLifeTime = 60
 )
 
+// InitDB initializes the database connection
 func InitDB(DbDsn string) (*sql.DB, error) {
 	db, err := sql.Open("mysql", DbDsn)
 	if err != nil {
@@ -36,6 +37,7 @@ func InitDB(DbDsn string) (*sql.DB, error) {
 	return db, nil
 }
 
+// RunMigrations runs the database migrations
 func RunMigrations(db *sql.DB, migrationsPath string) error {
 	// Get database driver instance
 	driver, err := mysql.WithInstance(db, &mysql.Config{})

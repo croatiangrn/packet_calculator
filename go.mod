@@ -3,7 +3,6 @@ module github.com/croatiangrn/packet_calculator
 go 1.24.2
 
 require (
-	github.com/davecgh/go-spew v1.1.1
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-sql-driver/mysql v1.9.2
 	github.com/golang-migrate/migrate/v4 v4.18.3

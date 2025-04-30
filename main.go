@@ -8,7 +8,6 @@ import (
 	"github.com/croatiangrn/packet_calculator/src/infrastructure/config"
 	"github.com/croatiangrn/packet_calculator/src/infrastructure/database"
 	appHttp "github.com/croatiangrn/packet_calculator/src/infrastructure/http"
-	"github.com/davecgh/go-spew/spew"
 	"log"
 	"net/http"
 	"os"
@@ -26,8 +25,6 @@ func main() {
 		log.Fatalf("Error loading config: %v\n", err)
 		return
 	}
-
-	spew.Dump(cfg)
 
 	dbDsn := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?charset=utf8mb4&parseTime=True&loc=Local",
 		cfg.DBUser, cfg.DBPassword, cfg.DBHost, cfg.DBPort, cfg.DBName)

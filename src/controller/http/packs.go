@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// PackageController handles HTTP requests related to packages
 type PackageController struct {
 	service *service.Pack
 }

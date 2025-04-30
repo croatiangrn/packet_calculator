@@ -16,6 +16,7 @@ type Config struct {
 	ServerPort string `mapstructure:"SERVER_PORT"`
 }
 
+// Load reads the configuration from the .env file and environment variables
 func Load(path string) (config Config, err error) {
 	viper.SetDefault("SERVER_PORT", ":8080")
 
