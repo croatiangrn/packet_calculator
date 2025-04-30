@@ -25,6 +25,7 @@ func TestPack_CalculatePacks(t *testing.T) {
 			want: map[int]int{
 				250: 1,
 			},
+			wantErr: false,
 		},
 		{
 			name: "Test with valid order and packs",
@@ -35,6 +36,38 @@ func TestPack_CalculatePacks(t *testing.T) {
 			want: map[int]int{
 				500: 1,
 			},
+			wantErr: false,
+		},
+		{
+			name: "Test with edge case from email",
+			args: args{
+				order:    500000,
+				packages: []int{23, 31, 53},
+			},
+			want: map[int]int{
+				23: 2,
+				31: 7,
+				53: 9429,
+			},
+			wantErr: false,
+		},
+		{
+			name: "Amount less than zero",
+			args: args{
+				order:    -2,
+				packages: []int{23, 31, 53},
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "No pack sizes provided",
+			args: args{
+				order:    200,
+				packages: []int{},
+			},
+			want:    nil,
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
