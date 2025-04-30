@@ -119,6 +119,6 @@ func (p *Pack) greedySolution(order int, packs []int) int {
 	return count
 }
 
-func (p *Pack) GetPacks() ([]int, error) {
+func (p *Pack) GetPacksSizes() ([]int, error) {
 	return p.repo.GetPacks()
 }

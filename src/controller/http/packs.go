@@ -24,7 +24,7 @@ func (pc *PackageController) RegisterRoutes(router *gin.RouterGroup) {
 }
 
 func (pc *PackageController) CalculatePacks(ginCtx *gin.Context) {
-	packSizes, err := pc.service.GetPacks()
+	packSizes, err := pc.service.GetPacksSizes()
 	if err != nil {
 		ginCtx.JSON(500, gin.H{"error": "Failed to get packs"})
 		return
