@@ -2,7 +2,9 @@ package service
 
 import (
 	"fmt"
+	"github.com/croatiangrn/packet_calculator/src/domain/pack"
 	"github.com/croatiangrn/packet_calculator/src/domain/repositories"
+	"github.com/croatiangrn/packet_calculator/src/infrastructure/http/dto"
 	"math"
 	"slices"
 )
@@ -121,4 +123,37 @@ func (p *Pack) greedySolution(order int, packs []int) int {
 
 func (p *Pack) GetPacksSizes() ([]int, error) {
 	return p.repo.GetPacks()
+}
+
+func (p *Pack) GetAllPacks() ([]dto.PackResponse, error) {
+	packs, err := p.repo.GetAll()
+	if err != nil {
+		return nil, err
+	}
+
+	var packResponses []dto.PackResponse
+	for _, pack := range packs {
+		packResponses = append(packResponses, dto.PackResponse{
+			ID:       pack.ID,
+			ItemSize: pack.ItemSize,
+		})
+	}
+
+	return packResponses, nil
+}
+
+func (p *Pack) AddPackSize(size int) error {
+	if size <= 0 {
+		return fmt.Errorf("size must be greater than zero")
+	}
+
+	packDomain := pack.Pack{
+		ItemSize: size,
+	}
+
+	if err := packDomain.Validate(); err != nil {
+		return err
+	}
+
+	return p.repo.AddPackSize(size)
 }
